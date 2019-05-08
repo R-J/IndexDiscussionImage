@@ -16,7 +16,7 @@ class IndexDiscussionImagePlugin extends Gdn_Plugin {
       $Sender->AddCssFile($this->GetResource('design/idi.css', FALSE, FALSE));
    }
    // Trigger on All Discussions.
-   public function DiscussionsController_BeforeDiscussionContent_Handler($Sender) {
+   public function DiscussionsController_BeforeDiscussionContent_Handler($Sender, $Args) {
         $CssItem = $Sender->EventArguments['CssClass'];
         $CssItem = str_replace("Bookmarked"," ",$CssItem);
         $bodyLine = $Sender->EventArguments['Discussion']->Body;    
@@ -25,12 +25,34 @@ class IndexDiscussionImagePlugin extends Gdn_Plugin {
         $oldName = $Sender->EventArguments['Discussion']->Name;
         $oldUrl = $Sender->EventArguments['Discussion']->Url;
         $ImageSrc = C('Plugin.IndexDiscussionImage.Image','/plugins/IndexDiscussionImage/design/images/default.png');
-        preg_match('#\<img.+?src="([^"]*).+?\>#s', $Sender->EventArguments['Discussion']->Body, $images);
-        if ($images[1]) {
-            $ImageSrc = $images[1];
+        $image = $this->getFirstImageFromBody($Args['Discussion']->Body, $Args['Discussion']->Format);
+        if ($image) {
+            $ImageSrc = $image;
         }
         $newTitleAnchor  = '<a class="IndexImage" href="' . $Sender->EventArguments['Discussion']->Url  . '">' .  Img($ImageSrc,  array('title' => $sline, 'class' => "IndexImage")) . '</a>';
        echo "$newTitleAnchor";
+   }
+
+   /**
+    * Return url of the first image in a post.
+    */
+   public function getFirstImageFromBody($body, $format) {
+      if ($format == 'Rich') {
+         $content = json_decode($body, true);
+
+         foreach($content as $item) {
+            $imageType = $item['insert']['embed-external']['data']['attributes']['type'] ?? false;
+            if (substr($imageType, 0, 6) === 'image/') {
+               return $item['insert']['embed-external']['data']['url'];
+            }
+         }
+      } else {
+         preg_match('#\<img.+?src="([^"]*).+?\>#s', $body, $images);
+         if (count($images) >= 1) {
+            return $images[1]; 
+         }
+      }
+      return false;
    }
  
  //show in the specific category discussions list
