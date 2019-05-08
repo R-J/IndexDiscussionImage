@@ -3,7 +3,6 @@ $PluginInfo['IndexDiscussionImage'] = array(
    'Name' => 'IndexDiscussionImage',
    'Description' => "Adds the linked Images from the Discussions to the Discussions Index as a Sampler and provides a tooltip to preview the content.",
    'Version' => '2.1',
-   'RegisterPermissions' => "Garden.Settings.Manage",
    'Author' => "VrijVlinder",
    'AuthorEmail' => 'contact@gvrijvlinder.com',
    'AuthorUrl' => 'http://vrijvlinder.com',
